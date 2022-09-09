@@ -1,0 +1,13 @@
+* Veloren Inventory Bot
+
+Bot that acts as an extended inventory or bank for storing items 
+
+* Example Usage
+
+#+begin_example
+$ export TARGET_USERNAME="your username in Veloren"
+$ export BOT_USERNAME="your bot account's username"
+$ export BOT_PASSWORD="your bot's password"
+#+end_example
+
+If your bot already created at least one character, then it will use the first character on the character list. Otherwise, it will create a new character.
