@@ -1,3 +1,21 @@
+/*
+ *    Bot that acts as an extended inventory or bank for storing items
+ *    Copyright (C) 2022  HumanoidSandvichDispenser
+ *
+ *    This program is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 extern crate tokio;
 extern crate veloren_client;
 extern crate veloren_common;
@@ -5,17 +23,13 @@ extern crate veloren_common;
 use std::{env, sync::Arc, time::Duration};
 
 use tokio::runtime::Runtime;
-use veloren_client::{addr::ConnectionArgs, Client, EcsEntity, Event, MarkerAllocator, WorldExt};
+use veloren_client::{addr::ConnectionArgs, Client, Event, MarkerAllocator, WorldExt};
 use veloren_common::{
     clock::Clock,
     comp::{self, ChatType},
-    trade::{ReducedInventory, ReducedInventoryItem, TradeAction},
+    trade::{ReducedInventory, TradeAction},
     uid::{Uid, UidAllocator},
 };
-
-static mut TARGET_USERNAME: Option<String> = None;
-static mut BOT_USERNAME: Option<String> = None;
-static mut BOT_PASSWORD: Option<String> = None;
 
 pub trait AliasOfUid {
     fn alias_of_uid(&self, uid: Uid) -> String;
@@ -128,7 +142,7 @@ fn on_event(client: &mut Client, clock: &mut Clock) {
     if let Some(last_invite) = client.invite() {
         let inviter_id = last_invite.0;
         if let Some(player_info) = client.player_list().get(&inviter_id) {
-            if player_info.player_alias == TARGET_USERNAME.unwrap() {
+            if player_info.player_alias == env::var("TARGET_USERNAME").unwrap() {
                 // we should the invite
                 client.accept_invite();
             } else {
@@ -170,15 +184,6 @@ fn on_event(client: &mut Client, clock: &mut Clock) {
                             }
                             None => continue,
                         };
-                    }
-
-                    for (inv_slot, qty) in pending_trade.offers[0].clone() {
-                        if let Some(inv) = party_inventories[0].clone() {
-                            let item = inv.inventory.get(&inv_slot);
-                            if let Some(item) = item {
-                                println!("x{} {} is being offered", qty, item.name.full_name());
-                            }
-                        }
                     }
                 }
             }
